@@ -1,0 +1,46 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: gainsboro;
+  font-family: sans-serif;
+}
+#setup {
+  margin: 80px 70px;
+}
+button {
+
+}
+button.active {
+  background-color: red;
+}
+button.type-mgr {}
+button.type-ffr {}
+button.type-exile {}
+button.type-none {}
+
+.setupline {
+  margin: 10px;
+}
+#printout {
+  background-color: white;
+}
+circle {
+  stroke-width: .075in;
+  fill: white;
+}
+circle.self{
+  stroke: black;
+  stroke-width: .125in;
+}
+circle.mgr {stroke: blue}
+circle.ffr {stroke: orange}
+circle.exile {stroke: gold}
+circle.none {stroke: gray}
+text {
+  text-align: center;
+  text-anchor: middle;
+  font-size: 12pt;
+}
+text.self {
+  font-size:24pt;
+}
