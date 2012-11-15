@@ -79,11 +79,9 @@ var zoomScale = 0.4; // Zoom sensitivity
 /// <====
 /// END OF CONFIGURATION
 
-var root = document.documentElement;
+var root
 
 var state = 'none', svgRoot = null, stateTarget, stateOrigin, stateTf;
-
-setupHandlers(root);
 
 /**
  * Register handlers
@@ -102,27 +100,16 @@ function setupHandlers(root){
     window.addEventListener('DOMMouseScroll', handleMouseWheel, false); // Others
 }
 
+function setupSVGPan(svgNode) {
+  root = svgNode;
+  setupHandlers(svgNode)
+}
+
 /**
  * Retrieves the root element for SVG manipulation. The element is then cached into the svgRoot global variable.
  */
-function getRoot(root) {
-  if(svgRoot == null) {
-    var r = root.getElementById("viewport") ? root.getElementById("viewport") : root.documentElement, t = r;
-
-    while(t != root) {
-      if(t.getAttribute("viewBox")) {
-        setCTM(r, t.getCTM());
-
-        t.removeAttribute("viewBox");
-      }
-
-      t = t.parentNode;
-    }
-
-    svgRoot = r;
-  }
-
-  return svgRoot;
+function getRoot() {
+  return root;
 }
 
 /**
@@ -175,8 +162,6 @@ function handleMouseWheel(evt) {
 
   evt.returnValue = false;
 
-  var svgDoc = evt.target.ownerDocument;
-
   var delta;
 
   if(evt.wheelDelta)
@@ -186,7 +171,7 @@ function handleMouseWheel(evt) {
 
   var z = Math.pow(1 + zoomScale, delta);
 
-  var g = getRoot(svgDoc);
+  var g = getRoot();
 
   var p = getEventPoint(evt);
 
@@ -212,9 +197,7 @@ function handleMouseMove(evt) {
 
   evt.returnValue = false;
 
-  var svgDoc = evt.target.ownerDocument;
-
-  var g = getRoot(svgDoc);
+  var g = getRoot();
 
   if(state == 'pan' && enablePan) {
     // Pan mode
@@ -261,7 +244,6 @@ function handleMouseDown(evt) {
     state = 'drag';
   }
 
-
   stateTf = g.getCTM().inverse();
 
   stateOrigin = getEventPoint(evt).matrixTransform(stateTf);
@@ -275,8 +257,6 @@ function handleMouseUp(evt) {
     evt.preventDefault();
 
   evt.returnValue = false;
-
-  var svgDoc = evt.target.ownerDocument;
 
   if(state == 'pan' || state == 'drag') {
     // Quit pan mode

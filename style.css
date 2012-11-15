@@ -21,6 +21,9 @@ button.type-none {}
 .setupline {
   margin: 10px;
 }
+#printArea {
+  float:right;
+}
 #printout {
   background-color: white;
 }
@@ -34,7 +37,7 @@ circle.self{
 }
 circle.mgr {stroke: blue}
 circle.ffr {stroke: orange}
-circle.exile {stroke: gold}
+circle.exile {stroke: purple}
 circle.none {stroke: gray}
 text {
   text-align: center;
