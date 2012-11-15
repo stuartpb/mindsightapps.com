@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Inner anthro prototype</title>
+  <script>
+    "use strict";
+    var count = 0
+    var twopi = Math.PI * 2
+
+    function addCircle() {
+      var circle = document.createElement('circle')
+      var text = document.createElement('text')
+      var g = document.createElement('g')
+
+      //determine location
+      var distance = (Math.floor(count/6)+1)*1.5
+      var angle = twopi/3 * (count%3)
+      if(count%6>3) { angle+=twopi/6 }
+      var x = 5+distance*Math.cos(angle)
+      var y = 4+distance*Math.sin(angle)
+
+      circle.className = 'none';
+      circle.setAttribute('r','.35in')
+      circle.setAttribute('cx',x+'in')
+      circle.setAttribute('cy',y+'in')
+
+      text.setAttribute('x',x+'in')
+      text.setAttribute('y',y+'in')
+
+      g.setAttribute('data-draggable','')
+
+      g.appendChild(circle)
+      g.appendChild(text)
+
+      document.getElementById('printout').appendChild(g)
+      ++count
+      return {circle: circle, text: text}
+    }
+
+    function addSetupLine () {
+      var cg = addCircle();
+      var radopts = ["mgr","ffr","exile","none"]
+      var labels = {
+        mgr: "Manager",
+        ffr: "Firefighter",
+        exile: "Exile",
+        none: "Unassigned"
+      }
+
+      var line = document.createElement('div')
+      line.className = "setupline"
+
+      var part = {
+        name: '',
+        selected: 'none'
+      }
+
+      var namer = document.createElement('input')
+      namer.oninput = function(e){
+        //I'm a bad, bad man.
+        part.name = namer.value
+      }
+      namer.onkeypress = function(e){
+        if (e.keyCode==13) {
+          addSetupLine()
+        }
+      }
+      line.appendChild(namer)
+
+      var resets = []
+      function resetButtons(){
+        resets.forEach(function(f){f()})
+      }
+      function makeButton(radopt) {
+        var button = document.createElement('button')
+        button.type="button"
+        var baseClass = 'type-' + radopt //yeah, yeah, terminology, blah blah.
+        resets.push(function(){
+          if(part.selected == radopt){
+            button.className = baseClass + ' active'
+          } else {
+            button.className = baseClass
+          }
+        })
+        button.textContent = labels[radopt]
+        button.onclick = function(e){
+          part.selected = radopt
+          resetButtons()
+        }
+        line.appendChild(button)
+      }
+      radopts.forEach(makeButton)
+      resetButtons()
+      document.getElementById('setup').appendChild(line)
+      document.getElementById('setup').appendChild(document.getElementById('showbutton'))
+      namer.focus()
+    }
+    function showPrintout(){
+      document.getElementById('setup').style.display = 'none';
+      document.getElementById('printout').style.display = null;
+    }
+  </script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: gainsboro;
+      font-family: sans-serif;
+    }
+    #setup {
+      margin: 80px 70px;
+    }
+    button {
+
+    }
+    button.active {
+      background-color: red;
+    }
+    button.type-mgr {}
+    button.type-ffr {}
+    button.type-exile {}
+    button.type-none {}
+
+    .setupline {
+      margin: 10px;
+    }
+    #printout {
+      background-color: white;
+    }
+    circle {
+      stroke: black;
+      stroke-width: .125in;
+      fill: white;
+    }
+    circle.mgr {stroke: blue}
+    circle.ffr {stroke: orange}
+    circle.exile {stroke: gold}
+    circle.none {stroke: gray}
+    text {
+      text-align: center;
+      text-anchor: middle;
+      font-size: 24pt;
+    }
+    text.self {
+      font-size:24pt;
+    }
+  </style>
+</head>
+<body onload="addSetupLine();">
+  <div id="setup">
+    <button type="button" id="showbutton" onclick="showPrintout()">Show</button>
+  </div>
+  <svg id="printout" style="display:none;"
+    width="10in" height="8in">
+    <g data-draggable>
+      <circle cx="5in" cy="4in" r='.75in'/>
+      <text class='self' x='5in' y='4in'>self</text>
+    </g>
+  </svg>
+</body>
+</html>
