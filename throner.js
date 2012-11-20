@@ -8,10 +8,11 @@ function addCircle() {
   var g = document.createElementNS("http://www.w3.org/2000/svg",'g')
 
   //determine location
-  var distance = (Math.floor(count/6)+1)*.75 + .5
+  var ring = (Math.floor(count/6)+1)
+  var distance = (Math.sqrt(ring))*(Math.sqrt(2))
   var angle = twopi/3 * (count%3)
   if (count%6 >= 3) { angle += twopi/6 }
-  if (count%12 >= 6) { angle += twopi/12 }
+  if (ring%2) { angle += twopi/12 }
 
   var x = 5+distance*Math.cos(angle)
   var y = 4+distance*Math.sin(angle)
@@ -95,11 +96,14 @@ function setupPage(){
     document.getElementById("viewport"))
 }
 
-function showPrintout(){
-  document.getElementById('setup').style.display = 'none';
-  document.getElementById('showbut').style.display = null;
-}
-function showSetup(){
-  document.getElementById('setup').style.display = null;
-  document.getElementById('showbut').style.display = 'none';
+function togglePanel(){
+  var curleft = document.getElementById('sidebar').style.left
+  var offsetLeft = document.getElementById('sidetoggle').offsetLeft
+  if(!curleft){
+    document.getElementById('sidebar').style.left = -offsetLeft+'px'
+    document.getElementById('toglabel').textContent = 'Show controls'
+  } else {
+    document.getElementById('sidebar').style.left = null
+    document.getElementById('toglabel').textContent = 'Hide controls'
+  }
 }

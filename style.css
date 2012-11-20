@@ -4,20 +4,54 @@ body {
   overflow: hidden;
   font-family: sans-serif;
 }
-#setup {
+
+#sidebar {
   position: absolute;
   background-color: gainsboro;
+  -webkit-transition: left .5s;
+  -moz-transition: left .5s;
+  -ms-transition: left .5s;
+  -o-transition: left .5s;
+  transition: left .5s;
   left:0;
   top: 0;
   bottom: 0;
-  padding: 80px 70px;
+}
+
+#panel {
+  margin: 80px 70px;
   /* Show a scrollbar when more entries appear than we have height for */
   overflow: auto;
   /* Let the elements go into the padding if a scrollbar gets added,
      rather than reflowing everything to accomodate the 6 fewer pixels
      of horizontal space */
-  white-space: nowrap;
+  white-space: nowrap; 
 }
+
+#sidetoggle{
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  border: none;
+  border-right: 4px solid lightgray;
+  background-color: silver;
+  margin:0;
+  width: 40px;
+  padding: 2px;
+}
+
+#toglabel {
+  /* It's gonna be dumb and narrow */
+  white-space: nowrap;
+  text-align: center;
+  -webkit-transform: rotate(-90deg); 
+  -moz-transform: rotate(-90deg);  
+  -ms-transform: rotate(-90deg);
+  -o-transform: rotate(-90deg);
+  transform: rotate(-90deg); 
+}
+
 button {
   border: 4px solid;
   padding: 4px 8px;
@@ -68,15 +102,9 @@ circle.none {stroke: gray;}
   bottom: 0;
 }
 #printout {
-  background-color: silver;
+  background-color: darkgray;
   width: 100%;
   height: 100%;
-}
-
-#showbut {
-  position: absolute;
-  top: 12px;
-  left: 12px;
 }
 
 circle {
