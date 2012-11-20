@@ -7,18 +7,26 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body onload="setupPage()">
-  <div id="setup">
-    <button type="button" id="showbutton" onclick="showPrintout()">Hide</button>
-  </div>
   <div id="printArea">
     <button id="showbut" style="display:none;" type="button" onclick="showSetup()">Show</button>
     <svg id="printout"
       width="10in" height="8in" >
-      <g data-draggable>
-        <circle class="self" cx="5in" cy="4in" r='.5in'/>
-        <text class='self' x='5in' y='4.125in'>self</text>
+      <g id="viewport" transform="matrix(1,0,0,0,1,0,0,0,1)">
+        <rect width='10in' height='8in' fill='white'/>
+        <g data-draggable>
+          <circle class="self" cx="5in" cy="4in" r='.5in'/>
+          <text class='self' x='5in' y='4.125in'>self</text>
+        </g>
       </g>
     </svg>
+  </div>
+  <div id="setup">
+    <div id="hideyhole">
+      <div id="lines"></div>
+    </div>
+    <button type="button"
+      id="showbutton"
+      onclick="showPrintout()">Hide</button>
   </div>
 </body>
 </html>

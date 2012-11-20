@@ -29,7 +29,7 @@ function addCircle() {
   g.appendChild(circle)
   g.appendChild(text)
 
-  document.getElementById('printout').appendChild(g)
+  document.getElementById('viewport').appendChild(g)
   ++count
   return {circle: circle, text: text}
 }
@@ -67,7 +67,7 @@ function addSetupLine () {
   function makeButton(radopt) {
     var button = document.createElement('button')
     button.type="button"
-    var baseClass = 'type-' + radopt //yeah, yeah, terminology, blah blah.
+    var baseClass = radopt
     resets.push(function(){
       if(selected == radopt){
         button.className = baseClass + ' active'
@@ -85,14 +85,14 @@ function addSetupLine () {
   }
   radopts.forEach(makeButton)
   resetButtons()
-  document.getElementById('setup').appendChild(line)
-  document.getElementById('setup').appendChild(document.getElementById('showbutton'))
+  document.getElementById('lines').appendChild(line)
   namer.focus()
 }
 
 function setupPage(){
   addSetupLine()
-  setupSVGPan(document.getElementById("printout"))
+  setupSVGPan(document.getElementById("printout"),
+    document.getElementById("viewport"))
 }
 
 function showPrintout(){

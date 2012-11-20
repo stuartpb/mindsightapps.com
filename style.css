@@ -1,32 +1,78 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: gainsboro;
+  overflow: hidden;
   font-family: sans-serif;
 }
 #setup {
-  margin: 80px 70px;
+  position: absolute;
+  background-color: gainsboro;
+  left:0;
+  top: 0;
+  bottom: 0;
+  padding: 80px 70px;
 }
 button {
-
-}
-button.active {
-  background-color: red;
-}
-button.type-mgr {}
-button.type-ffr {}
-button.type-exile {}
-button.type-none {}
-
-.setupline {
-  margin: 10px;
-}
-#printArea {
-  float:right;
-}
-#printout {
+  border: 4px solid;
+  padding: 4px 8px;
+  font-size: 16px;
   background-color: white;
 }
+button.active {
+  border: 8px solid;
+  padding: 0 4px;
+}
+button.mgr {
+  border-color: maroon;
+  color: maroon;}
+circle.mgr {stroke: maroon;}
+button.ffr {
+  border-color: orange;
+  color: orange;}
+circle.ffr {stroke: orange;}
+button.exile {
+  border-color: purple;
+  color: purple;}
+circle.exile {stroke: purple;}
+button.none {
+  border-color: gray;
+  color: gray;}
+circle.none {stroke: gray;}
+
+.setupline {
+  margin: 10px 0;
+}
+
+.setupline * {
+ margin-top: 0;
+ margin-bottom: 0;
+}
+
+.setupline input {
+  font-size: 24px;
+  border: 2px solid black;
+  padding: 1px 0;
+}
+
+#printArea {
+  position: absolute;
+  left: 0;
+  right:0;
+  top: 0;
+  bottom: 0;
+}
+#printout {
+  background-color: silver;
+  width: 100%;
+  height: 100%;
+}
+
+#showbut {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
 circle {
   stroke-width: .075in;
   fill: white;
@@ -35,10 +81,7 @@ circle.self{
   stroke: black;
   stroke-width: .125in;
 }
-circle.mgr {stroke: blue}
-circle.ffr {stroke: orange}
-circle.exile {stroke: purple}
-circle.none {stroke: gray}
+
 text {
   text-align: center;
   text-anchor: middle;

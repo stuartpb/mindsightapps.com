@@ -79,9 +79,8 @@ var zoomScale = 0.4; // Zoom sensitivity
 /// <====
 /// END OF CONFIGURATION
 
-var root
-
-var state = 'none', svgRoot = null, stateTarget, stateOrigin, stateTf;
+var root, viewport;
+var state = 'none', stateTarget, stateOrigin, stateTf;
 
 /**
  * Register handlers
@@ -91,7 +90,7 @@ function setupHandlers(root){
     "onmouseup" : "handleMouseUp(evt)",
     "onmousedown" : "handleMouseDown(evt)",
     "onmousemove" : "handleMouseMove(evt)",
-    //"onmouseout" : "handleMouseUp(evt)", // Decomment this to stop the pan functionality when dragging out of the SVG element
+    //"onmouseout" : "handleMouseUp(evt)",
   });
 
   if(navigator.userAgent.toLowerCase().indexOf('webkit') >= 0)
@@ -100,16 +99,10 @@ function setupHandlers(root){
     window.addEventListener('DOMMouseScroll', handleMouseWheel, false); // Others
 }
 
-function setupSVGPan(svgNode) {
+function setupSVGPan(svgNode, vpNode) {
   root = svgNode;
-  setupHandlers(svgNode)
-}
-
-/**
- * Retrieves the root element for SVG manipulation. The element is then cached into the svgRoot global variable.
- */
-function getRoot() {
-  return root;
+  viewport = vpNode;
+  setupHandlers(svgNode);
 }
 
 /**
@@ -120,6 +113,14 @@ function getEventPoint(evt) {
 
   p.x = evt.clientX;
   p.y = evt.clientY;
+  
+  // Zoom cares about position - factor in offsets!
+  var offsetCurrent = root;
+  while(offsetCurrent){
+    p.x -= offsetCurrent.offsetLeft;
+    p.y -= offsetCurrent.offsetTop;
+    offsetCurrent = offsetCurrent.offsetParent;
+  }
 
   return p;
 }
@@ -128,7 +129,8 @@ function getEventPoint(evt) {
  * Sets the current transform matrix of an element.
  */
 function setCTM(element, matrix) {
-  var s = "matrix(" + matrix.a + "," + matrix.b + "," + matrix.c + "," + matrix.d + "," + matrix.e + "," + matrix.f + ")";
+  var s = "matrix(" + matrix.a + "," + matrix.b + "," + matrix.c + ","
+    + matrix.d + "," + matrix.e + "," + matrix.f + ")";
 
   element.setAttribute("transform", s);
 }
@@ -137,7 +139,9 @@ function setCTM(element, matrix) {
  * Dumps a matrix to a string (useful for debug).
  */
 function dumpMatrix(matrix) {
-  var s = "[ " + matrix.a + ", " + matrix.c + ", " + matrix.e + "\n  " + matrix.b + ", " + matrix.d + ", " + matrix.f + "\n  0, 0, 1 ]";
+  var s = "[ " + matrix.a + ", " + matrix.c + ", " + matrix.e
+    + "\n  " + matrix.b + ", " + matrix.d + ", " + matrix.f
+    + "\n  0, 0, 1 ]";
 
   return s;
 }
@@ -171,19 +175,20 @@ function handleMouseWheel(evt) {
 
   var z = Math.pow(1 + zoomScale, delta);
 
-  var g = getRoot();
-
   var p = getEventPoint(evt);
 
-  p = p.matrixTransform(g.getCTM().inverse());
+  p = p.matrixTransform(viewport.getCTM().inverse());
 
   // Compute new scale matrix in current mouse position
-  var k = root.createSVGMatrix().translate(p.x, p.y).scale(z).translate(-p.x, -p.y);
+  var k = root.createSVGMatrix()
+    .translate(p.x, p.y)
+    .scale(z)
+    .translate(-p.x, -p.y);
 
-        setCTM(g, g.getCTM().multiply(k));
+  setCTM(viewport, viewport.getCTM().multiply(k));
 
   if(typeof(stateTf) == "undefined")
-    stateTf = g.getCTM().inverse();
+    stateTf = viewport.getCTM().inverse();
 
   stateTf = stateTf.multiply(k.inverse());
 }
@@ -192,23 +197,27 @@ function handleMouseWheel(evt) {
  * Handle mouse move event.
  */
 function handleMouseMove(evt) {
+  var p;
+  
   if(evt.preventDefault)
     evt.preventDefault();
 
   evt.returnValue = false;
 
-  var g = getRoot();
-
   if(state == 'pan' && enablePan) {
     // Pan mode
-    var p = getEventPoint(evt).matrixTransform(stateTf);
+    p = getEventPoint(evt).matrixTransform(stateTf);
 
-    setCTM(g, stateTf.inverse().translate(p.x - stateOrigin.x, p.y - stateOrigin.y));
+    setCTM(viewport, stateTf.inverse()
+      .translate(p.x - stateOrigin.x, p.y - stateOrigin.y));
   } else if(state == 'drag' && enableDrag) {
     // Drag mode
-    var p = getEventPoint(evt).matrixTransform(g.getCTM().inverse());
+    p = getEventPoint(evt).matrixTransform(viewport.getCTM().inverse());
 
-    setCTM(stateTarget, root.createSVGMatrix().translate(p.x - stateOrigin.x, p.y - stateOrigin.y).multiply(g.getCTM().inverse()).multiply(stateTarget.getCTM()));
+    setCTM(stateTarget, root.createSVGMatrix()
+      .translate(p.x - stateOrigin.x, p.y - stateOrigin.y)
+      .multiply(viewport.getCTM().inverse())
+      .multiply(stateTarget.getCTM()));
 
     stateOrigin = p;
   }
@@ -222,10 +231,6 @@ function handleMouseDown(evt) {
     evt.preventDefault();
 
   evt.returnValue = false;
-
-  var svgDoc = evt.target.ownerDocument;
-
-  var g = getRoot(svgDoc);
 
   stateTarget = evt.target;
 
@@ -244,7 +249,7 @@ function handleMouseDown(evt) {
     state = 'drag';
   }
 
-  stateTf = g.getCTM().inverse();
+  stateTf = viewport.getCTM().inverse();
 
   stateOrigin = getEventPoint(evt).matrixTransform(stateTf);
 }
