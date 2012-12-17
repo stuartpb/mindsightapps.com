@@ -5,14 +5,43 @@
 <title>Mindsight Apps Logo Color Adjustment</title>
 <script src="colorpicker.js"></script>
 <style>
-.colorform {
-  clear:both;
+html, body {
+  overflow: hidden;
+  height:100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* This is an enormous hack and I hate it. */
+#logo-top-margin {
+  height: 10% 
+}
+
+#logo {
+  height: 80%;
+  width: 80%;
+  float: left;
+}
+
+#sidebar {
+  height: 100%;
+  width: 20%;
+  position:relative;
   float:right;
+}
+
+.colorform {
+  clear:right;
+  position:relative;
+  float:right;
+  height:33.333333%;
+  width:100%;
 }
 
 .graphic {
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
 .wrapper {
@@ -21,13 +50,11 @@
 }
 
 .picker.wrapper {
-  width:128px;
-  height:128px;
+  width:95%;
 }
 
 .slider.wrapper {
-  width: 16px;
-  height: 128px;
+  width: 5%;
 }
 
 .indicator {
@@ -54,14 +81,14 @@ input {
 </style>
 </head>
 <body>
+<div id="sidebar"></div>
+<div id="logo-top-margin"></div>
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   width="256px"
-   height="256px"
    viewBox="0 0 64 64"
    id="logo"
    version="1.1">
@@ -101,6 +128,25 @@ input {
   </g>
 </svg>
 <script>
+var parts = ["figure","iris","ground"]
+  
+if (location.hash && location.hash.substr(1,1) == '!'){
+  for (var i=0;i<parts.length;i++){
+    var color = location.hash.substr(2+i*6,6)
+    if (color.match(/^[0-9A-Fa-f]{6}$/)){
+      document.getElementById(parts[i]).style.fill = '#' + color
+    }
+  }
+}
+
+function changeLocation(){
+  var fragment = '#!'
+  for (var i=0;i<parts.length;i++){
+    fragment += document.getElementById(parts[i]).style.fill.substr(1)
+  }
+  location.hash = fragment
+}
+
 function makePicker(id){
   var pickerElem = document.createElement('div')
   pickerElem.className = "picker graphic"
@@ -122,16 +168,16 @@ function makePicker(id){
   sliderWrap.appendChild(sliderInd)
   container.appendChild(pickerWrap)
   container.appendChild(sliderWrap)
-  document.body.appendChild(container)
+  document.getElementById('sidebar').appendChild(container)
   var cp = ColorPicker(sliderElem,pickerElem,
   function(hex, hsv, rgb, mousePicker, mouseSlide){
     document.getElementById(id).style.fill = hex
     ColorPicker.positionIndicators(sliderInd,pickerInd,mouseSlide, mousePicker);
+    changeLocation();
   });
   cp.setHex(document.getElementById(id).style.fill)
 }
 
-var parts = ["figure","iris","ground"]
 for (var i=0;i<parts.length;i++){
   makePicker(parts[i])
 }
