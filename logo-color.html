@@ -73,21 +73,39 @@ html, body {
   position: absolute 
 }
 
-.picker.indicator {
-  width: 1px;
-  height: 1px;
-  margin-left: -1px;
-  margin-top: -1px;
-  border: 1px solid black;
-  background-color: white;
+.picker.indicator:before {
+  content: '';
+  display: block;
+  position: absolute;
+  right:-1px;
+  bottom:-1px;
+  width: 5px;
+  height: 5px;
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+  pointer-events:none;
+}
+.picker.indicator:after {
+  content: '';
+  display: block;
+  position: absolute;
+  left:0px;
+  top:0px;
+  width: 5px;
+  height: 5px;
+  border-left: 1px solid black;
+  border-top: 1px solid black;
+  pointer-events: none;
 }
 
 .slider.indicator {
-  width: 100%;
-  height: 4px;
-  margin-top: -2px;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-left: 8px solid black;
+  border-bottom: 4px solid transparent;
   left:0;
-  background-color: black;
+  pointer-events: none;
 }
 
 input {
@@ -137,13 +155,16 @@ input {
 </svg>
 <script>
 var parts = ["figure","iris","ground"];
-var resetters = {};
+var pickers = {};
 
 function hexByte(x) {
     return ("0" + parseInt(x).toString(16)).slice(-2);
 }
 
+var changingLocation = false;
+
 function changeLocation(){
+  changingLocation = true;
   var fragment = '#!'
   for (var i=0;i<parts.length;i++){
     var color = document.getElementById(parts[i]).style.fill
@@ -187,58 +208,52 @@ function makePicker(id){
   container.appendChild(sliderWrap)
   document.getElementById('sidebar').appendChild(container)
   var cp = ColorPicker(sliderElem,pickerElem,
-  function(hex, hsv, rgb, mousePicker, mouseSlide){
-    document.getElementById(id).style.fill = hex
-    ColorPicker.positionIndicators(sliderInd,pickerInd,mouseSlide, mousePicker,'%');
-    changeLocation();
-  });
-  var resetter = function(){
-    var color = document.getElementById(id).style.fill
-    
-    //handle browsers that return the fill as an rgb value
-    //(Firefox)
-    var rgb = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-    if (rgb) {
-      cp.setRgb({r:rgb[1],g:rgb[2],b:rgb[3]});
-    } else {
-      //otherwise, assume you got hex back
-      //(big assumption, I know)
-      cp.setHex(color)
-    }
-  }
-  resetters[id] = resetter
+    function(hex, hsv, rgb, mousePicker, mouseSlide){
+      document.getElementById(id).style.fill = hex
+      ColorPicker.positionIndicators(sliderInd,pickerInd,mouseSlide, mousePicker,'%');
+    },
+    function(hex, hsv, rgb, mousePicker, mouseSlide){
+      changeLocation()
+    });
+  pickers[id] = cp;
 }
 
 for (var i=0;i<parts.length;i++){
   makePicker(parts[i])
 }
-
-function updatePickers(){
-  for (var i=0;i<parts.length;i++){
-    resetters[parts[i]]()
-  }
-}
   
 function updateFromHash(){
-  if (location.hash && location.hash.substr(1,1) == '!'){
-    for (var i=0;i<parts.length;i++){
-      var color = '#' + location.hash.substr(2+i*6,6)
-      if (color.match(/^#[0-9A-Fa-f]{6}$/)){
-        document.getElementById(parts[i]).style.fill = color
+  //If we just set the hash ourselves
+  if(changingLocation){
+    //Go back to listening for the next situation where the hash changes
+    changingLocation = false;
+  } else {
+    if (location.hash && location.hash.substr(1,1) == '!'){
+      updatingFromHash = true;
+      for (var i=0;i<parts.length;i++){
+        var color = '#' + location.hash.substr(2+i*6,6)
+        if (color.match(/^#[0-9A-Fa-f]{6}$/)){
+          pickers[parts[i]].setHex(color)
+        }
+      }
+    } else {
+      //The page is initializing- set the picker values
+      for (var i=0;i<parts.length;i++){
+        var color = document.getElementById(parts[i]).style.fill
+      
+        //handle browsers that return the fill as an rgb value
+        //(Firefox)
+        var rgb = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        if (rgb) {
+          pickers[parts[i]].setRgb({r:rgb[1],g:rgb[2],b:rgb[3]});
+        } else {
+          //otherwise, assume you got hex back
+          //(big assumption, I know)
+          pickers[parts[i]].setHex(color)
+        }
       }
     }
   }
-  //After parsing and changing all the part colors
-  //(or not, if the page was freshly loaded and the hash was empty),
-  //reset the pickers- this'll trigger a few location
-  //rewrites, but they'll all be to the same thing,
-  //so onhashchange won't get triggered.
-  updatePickers();
-  //The right way to handle this might be to just
-  //disable updating from hash when setting the location
-  //or otherwise lock/redesign it so when all three pickers
-  //get changed it only updates the location at the end,
-  //or something like that, but... nah.
 }
 
 updateFromHash();
