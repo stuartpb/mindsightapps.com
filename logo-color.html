@@ -14,7 +14,8 @@ html, body {
 
 /* This is an enormous hack and I hate it. */
 #logo-top-margin {
-  height: 10% 
+  height: 10%;
+  padding: 4px;
 }
 
 #logo {
@@ -64,6 +65,8 @@ html, body {
 .picker.indicator {
   width: 1px;
   height: 1px;
+  margin-left: -1px;
+  margin-top: -1px;
   border: 1px solid black;
   background-color: white;
 }
@@ -71,6 +74,7 @@ html, body {
 .slider.indicator {
   width: 100%;
   height: 4px;
+  margin-top: -2px;
   left:0;
   background-color: black;
 }
@@ -82,7 +86,11 @@ input {
 </head>
 <body>
 <div id="sidebar"></div>
-<div id="logo-top-margin"></div>
+<div id="logo-top-margin">
+  <svg height='16px' width='16px'>
+    <use xlink:href="#logo"></use>
+  </svg>
+</div>
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -92,18 +100,6 @@ input {
    viewBox="0 0 64 64"
    id="logo"
    version="1.1">
-  <metadata
-     id="metadata2990">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
   <g
      id="ground-layer">
     <path
@@ -128,16 +124,8 @@ input {
   </g>
 </svg>
 <script>
-var parts = ["figure","iris","ground"]
-  
-if (location.hash && location.hash.substr(1,1) == '!'){
-  for (var i=0;i<parts.length;i++){
-    var color = location.hash.substr(2+i*6,6)
-    if (color.match(/^[0-9A-Fa-f]{6}$/)){
-      document.getElementById(parts[i]).style.fill = '#' + color
-    }
-  }
-}
+var parts = ["figure","iris","ground"];
+var resetters = {};
 
 function changeLocation(){
   var fragment = '#!'
@@ -172,15 +160,50 @@ function makePicker(id){
   var cp = ColorPicker(sliderElem,pickerElem,
   function(hex, hsv, rgb, mousePicker, mouseSlide){
     document.getElementById(id).style.fill = hex
-    ColorPicker.positionIndicators(sliderInd,pickerInd,mouseSlide, mousePicker);
+    ColorPicker.positionIndicators(sliderInd,pickerInd,mouseSlide, mousePicker,'%');
     changeLocation();
   });
-  cp.setHex(document.getElementById(id).style.fill)
+  var resetter = function(){
+    cp.setHex(document.getElementById(id).style.fill)
+  }
+  resetters[id] = resetter
 }
 
 for (var i=0;i<parts.length;i++){
   makePicker(parts[i])
 }
+
+function updatePickers(){
+  for (var i=0;i<parts.length;i++){
+    resetters[parts[i]]()
+  }
+}
+  
+function updateFromHash(){
+  if (location.hash && location.hash.substr(1,1) == '!'){
+    for (var i=0;i<parts.length;i++){
+      var color = '#' + location.hash.substr(2+i*6,6)
+      if (color.match(/^#[0-9A-Fa-f]{6}$/)){
+        document.getElementById(parts[i]).style.fill = color
+      }
+    }
+  }
+  //After parsing and changing all the part colors
+  //(or not, if the page was freshly loaded and the hash was empty),
+  //reset the pickers- this'll trigger a few location
+  //rewrites, but they'll all be to the same thing,
+  //so onhashchange won't get triggered.
+  updatePickers();
+  //The right way to handle this might be to just
+  //disable updating from hash when setting the location
+  //or otherwise lock/redesign it so when all three pickers
+  //get changed it only updates the location at the end,
+  //or something like that, but... nah.
+}
+
+updateFromHash();
+window.onhashchange = updateFromHash
+
 </script>
 </body>
 </html>
