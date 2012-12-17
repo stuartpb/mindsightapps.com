@@ -161,7 +161,7 @@
      * Sets picker background color and calls ctx.callback if provided.
      */  
     function slideListener(ctx, slideElement, pickerElement) {
-        return function(evt) {
+        return function(evt, callback) {
             evt = evt || window.event;
             var mouse = mousePosition(evt);
             ctx.h = mouse.y / slideElement.offsetHeight * 360 + hueOffset;
@@ -170,7 +170,7 @@
             }
             var c = hsv2rgb(ctx.h, ctx.s, ctx.v);
             pickerElement.style.backgroundColor = hsv2rgb(ctx.h,1,1).hex;
-            ctx.callback && ctx.callback(c.hex, { h: ctx.h - hueOffset, s: ctx.s, v: ctx.v }, { r: c.r, g: c.g, b: c.b }, undefined, mouse);
+            callback && callback(c.hex, { h: ctx.h - hueOffset, s: ctx.s, v: ctx.v }, { r: c.r, g: c.g, b: c.b }, undefined, mouse);
         };
     }
 
@@ -179,7 +179,7 @@
      * Calls ctx.callback if provided.
      */  
     function pickerListener(ctx, pickerElement) {
-        return function(evt) {
+        return function(evt, callback) {
             evt = evt || window.event;
             var mouse = mousePosition(evt),
                 width = pickerElement.offsetWidth,            
@@ -188,8 +188,38 @@
             ctx.s = mouse.x / width;
             ctx.v = (height - mouse.y) / height;
             var c = hsv2rgb(ctx.h, ctx.s, ctx.v);
-            ctx.callback && ctx.callback(c.hex, { h: ctx.h - hueOffset, s: ctx.s, v: ctx.v }, { r: c.r, g: c.g, b: c.b }, mouse);
+            callback && callback(c.hex, { h: ctx.h - hueOffset, s: ctx.s, v: ctx.v }, { r: c.r, g: c.g, b: c.b }, mouse);
         };
+    }
+    
+    function addDragDropListeners(element,listener,dragCallback,dropCallback){
+      var held = false;
+      function mouseDownListener(evt){
+        held = true;
+        listener(evt,dragCallback);
+      }
+      function mouseMoveListener(evt){
+        if (held) {
+          listener(evt,dragCallback);
+        }
+      }
+      function mouseUpListener(evt){
+        if (held) {
+          held = false;
+          listener(evt,dropCallback);
+        }
+      }
+      if (element.addEventListener) {
+        element.addEventListener('mousedown', mouseDownListener, false);
+        element.addEventListener('mousemove', mouseMoveListener, false);
+        element.addEventListener('mouseup', mouseUpListener, false);
+        element.addEventListener('mouseout', mouseUpListener, false);
+      } else if (element.attachEvent) {
+        element.attachEvent('onmousedown', mouseDownListener);
+        element.attachEvent('onmousemove', mouseMoveListener);
+        element.attachEvent('onmouseup', mouseUpListener);
+        element.attachEvent('onmouseout', mouseUpListener);
+      }
     }
 
     /**
@@ -198,10 +228,11 @@
      * @param {DOMElement} pickerElement HSV picker element.
      * @param {Function} callback Called whenever the color is changed provided chosen color in RGB HEX format as the only argument.
      */
-    function ColorPicker(slideElement, pickerElement, callback) {
-        if (!(this instanceof ColorPicker)) return new ColorPicker(slideElement, pickerElement, callback);
+    function ColorPicker(slideElement, pickerElement, moveCallback, finalizeCallback) {
+        if (!(this instanceof ColorPicker)) return new ColorPicker(slideElement, pickerElement, moveCallback, finalizeCallback);
         
-        this.callback = callback;
+        this.moveCallback = moveCallback;
+        this.finalizeCallback = finalizeCallback;
         this.h = 0;
         this.s = 1;
         this.v = 1;
@@ -216,13 +247,8 @@
             pickerElement.innerHTML = picker;            
         }
 
-        if (slideElement.attachEvent) {
-            slideElement.attachEvent('onclick', slideListener(this, slideElement, pickerElement));
-            pickerElement.attachEvent('onclick', pickerListener(this, pickerElement));
-        } else if (slideElement.addEventListener) {
-            slideElement.addEventListener('click', slideListener(this, slideElement, pickerElement), false);
-            pickerElement.addEventListener('click', pickerListener(this, pickerElement), false);
-        }
+        addDragDropListeners(slideElement,slideListener(this, slideElement, pickerElement),moveCallback,finalizeCallback);
+        addDragDropListeners(pickerElement, pickerListener(this, pickerElement),moveCallback,finalizeCallback);
     }
 
     /**
@@ -233,7 +259,10 @@
      * @param {string} hex String of the form: #RRGGBB.
      */
      function setColor(ctx, hsv, rgb, hex) {
-        ctx.h = hsv.h % 360;
+        //Don't modify the last chosen hue if there's no saturation value
+        if (ctx.s > 0) {
+          ctx.h = hsv.h % 360;
+        }
         ctx.s = hsv.s;
         ctx.v = hsv.v;
         var c = hsv2rgb(ctx.h, ctx.s, ctx.v),
@@ -247,7 +276,7 @@
                 y: pickerHeight - ctx.v * pickerHeight
             };
         ctx.pickerElement.style.backgroundColor = hsv2rgb(ctx.h, 1, 1).hex;
-        ctx.callback && ctx.callback(hex || c.hex, { h: ctx.h, s: ctx.s, v: ctx.v }, rgb || { r: c.r, g: c.g, b: c.b }, mousePicker, mouseSlide);
+        ctx.moveCallback && ctx.moveCallback(hex || c.hex, { h: ctx.h, s: ctx.s, v: ctx.v }, rgb || { r: c.r, g: c.g, b: c.b }, mousePicker, mouseSlide);
     }
 
     /**
