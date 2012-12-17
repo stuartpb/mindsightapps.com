@@ -165,12 +165,14 @@
             evt = evt || window.event;
             var mouse = mousePosition(evt);
             ctx.h = mouse.y / slideElement.offsetHeight * 360 + hueOffset;
-            ctx.s = ctx.v = 1;
-            var c = hsv2rgb(ctx.h, 1, 1);
-            pickerElement.style.backgroundColor = c.hex;
+            if (this.resetOnHueChange) {
+                ctx.s = ctx.v = 1;
+            }
+            var c = hsv2rgb(ctx.h, ctx.s, ctx.v);
+            pickerElement.style.backgroundColor = hsv2rgb(ctx.h,1,1).hex;
             ctx.callback && ctx.callback(c.hex, { h: ctx.h - hueOffset, s: ctx.s, v: ctx.v }, { r: c.r, g: c.g, b: c.b }, undefined, mouse);
-        }
-    };
+        };
+    }
 
     /**
      * Return click event handler for the picker.
@@ -187,8 +189,8 @@
             ctx.v = (height - mouse.y) / height;
             var c = hsv2rgb(ctx.h, ctx.s, ctx.v);
             ctx.callback && ctx.callback(c.hex, { h: ctx.h - hueOffset, s: ctx.s, v: ctx.v }, { r: c.r, g: c.g, b: c.b }, mouse);
-        }
-    };
+        };
+    }
 
     /**
      * ColorPicker.
@@ -221,7 +223,7 @@
             slideElement.addEventListener('click', slideListener(this, slideElement, pickerElement), false);
             pickerElement.addEventListener('click', pickerListener(this, pickerElement), false);
         }
-    };
+    }
 
     /**
      * Sets color of the picker in hsv/rgb/hex format.
@@ -246,7 +248,7 @@
             };
         ctx.pickerElement.style.backgroundColor = hsv2rgb(ctx.h, 1, 1).hex;
         ctx.callback && ctx.callback(hex || c.hex, { h: ctx.h, s: ctx.s, v: ctx.v }, rgb || { r: c.r, g: c.g, b: c.b }, mousePicker, mouseSlide);
-    };
+    }
 
     /**
      * Sets color of the picker in rgb format.
@@ -281,17 +283,35 @@
      * @param {HTMLElement} pickerIndicator DOM element representing the indicator of the picker area.
      * @param {object} mouseSlide Coordinates of the mouse cursor in the slide area.
      * @param {object} mousePicker Coordinates of the mouse cursor in the picker area.
+     * @param {string} unit Unit to set position in. px or % are supported (percentage is decided by height of parentElement).
      */
-    ColorPicker.positionIndicators = function(slideIndicator, pickerIndicator, mouseSlide, mousePicker) {
+    ColorPicker.positionIndicators = function(slideIndicator, pickerIndicator, mouseSlide, mousePicker, unit) {
+        unit = unit || 'px';
         if (mouseSlide) {
-            pickerIndicator.style.left = 'auto';
-            pickerIndicator.style.right = '0px';
-            pickerIndicator.style.top = '0px';
-            slideIndicator.style.top = (mouseSlide.y - slideIndicator.offsetHeight/2) + 'px';
+            if (unit == 'px') {
+                if (this.resetOnHueChange) {
+                    pickerIndicator.style.left = 'auto';
+                    pickerIndicator.style.right = '0px';
+                    pickerIndicator.style.top = '0px';
+                }
+                slideIndicator.style.top = (mouseSlide.y - slideIndicator.offsetHeight/2) + 'px';
+            } else if (unit == '%') {
+                if (this.resetOnHueChange) {
+                    pickerIndicator.style.left = 'auto';
+                    pickerIndicator.style.right = '100%';
+                    pickerIndicator.style.top = '100%';
+                }
+                slideIndicator.style.top = (mouseSlide.y / slideIndicator.parentElement.offsetHeight) * 100 + '%';
+            }
         }
         if (mousePicker) {
-            pickerIndicator.style.top = (mousePicker.y - pickerIndicator.offsetHeight/2) + 'px';
-            pickerIndicator.style.left = (mousePicker.x - pickerIndicator.offsetWidth/2) + 'px';
+            if (unit == 'px') {
+                pickerIndicator.style.top = (mousePicker.y - pickerIndicator.offsetHeight/2) + 'px';
+                pickerIndicator.style.left = (mousePicker.x - pickerIndicator.offsetWidth/2) + 'px';
+            } else if (unit == '%') {
+                pickerIndicator.style.top = (mousePicker.y / pickerIndicator.parentElement.offsetHeight) * 100 + '%';
+                pickerIndicator.style.left = (mousePicker.x / pickerIndicator.parentElement.offsetWidth) * 100 + '%';
+            }
         } 
     };
     
