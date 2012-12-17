@@ -10,12 +10,21 @@ html, body {
   height:100%;
   margin: 0;
   padding: 0;
+  font-family: Helvetica, sans-serif;
 }
 
 /* This is an enormous hack and I hate it. */
 #logo-top-margin {
   height: 10%;
   padding: 4px;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#logo-top-margin svg {
+ vertical-align: text-top;
+ margin-right: 4px;
 }
 
 #logo {
@@ -48,6 +57,8 @@ html, body {
 .wrapper {
   position: relative;
   float: left;
+  height: 100%;
+  overflow: hidden;
 }
 
 .picker.wrapper {
@@ -90,6 +101,7 @@ input {
   <svg height='16px' width='16px'>
     <use xlink:href="#logo"></use>
   </svg>
+  Mindsight Apps
 </div>
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -127,10 +139,27 @@ input {
 var parts = ["figure","iris","ground"];
 var resetters = {};
 
+function hexByte(x) {
+    return ("0" + parseInt(x).toString(16)).slice(-2);
+}
+
 function changeLocation(){
   var fragment = '#!'
   for (var i=0;i<parts.length;i++){
-    fragment += document.getElementById(parts[i]).style.fill.substr(1)
+    var color = document.getElementById(parts[i]).style.fill
+    
+    //handle browsers that return the fill as an rgb value
+    //(Firefox)
+    var rgb = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    if (rgb) {
+      color = hexByte(rgb[1]) + hexByte(rgb[2]) + hexByte(rgb[3]);
+    } else {
+      //assume it's a hash without even checking, like a chump
+      color = color.substr(1)
+    }
+    
+    //add the color to the hash
+    fragment += color
   }
   location.hash = fragment
 }
@@ -164,7 +193,18 @@ function makePicker(id){
     changeLocation();
   });
   var resetter = function(){
-    cp.setHex(document.getElementById(id).style.fill)
+    var color = document.getElementById(id).style.fill
+    
+    //handle browsers that return the fill as an rgb value
+    //(Firefox)
+    var rgb = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    if (rgb) {
+      cp.setRgb({r:rgb[1],g:rgb[2],b:rgb[3]});
+    } else {
+      //otherwise, assume you got hex back
+      //(big assumption, I know)
+      cp.setHex(color)
+    }
   }
   resetters[id] = resetter
 }
