@@ -110,19 +110,16 @@ function setupSVGPan(svgNode, vpNode) {
  */
 function getEventPoint(evt) {
   var p = root.createSVGPoint();
-
-  p.x = evt.clientX;
-  p.y = evt.clientY;
-  
-  // Zoom cares about position - factor in offsets!
-  var offsetCurrent = root;
-  while(offsetCurrent){
-    p.x -= offsetCurrent.offsetLeft;
-    p.y -= offsetCurrent.offsetTop;
-    offsetCurrent = offsetCurrent.offsetParent;
-  }
-
-  return p;
+      // Webkit, IE9
+      if (evt.offsetX !== undefined && evt.offsetY !== undefined) {
+        p.x= evt.offsetX; p.y= evt.offsetY;
+      // Firefox
+      } else if (evt.layerX !== undefined && evt.layerY !== undefined){
+        p.x= evt.layerX; p.y= evt.layerY;
+      // Older IEs
+      } else if (window.event && window.event.contentOverflow !== undefined) {
+        p.x= window.event.offsetX; p.y= window.event.offsetY;
+      }
 }
 
 /**
