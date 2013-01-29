@@ -102,6 +102,14 @@ function setupHandlers(root){
 function setupSVGPan(svgNode, vpNode) {
   root = svgNode;
   viewport = vpNode;
+
+  //viewBox, much to my dismay, changes the reported getCTM for the
+  //viewport, which this script uses in several places.
+  //This is cheap, but it works.
+  var initialCTM = root.getCTM();
+  root.removeAttribute('viewBox');
+  setCTM(viewport,initialCTM);
+
   setupHandlers(svgNode);
 }
 
@@ -110,16 +118,23 @@ function setupSVGPan(svgNode, vpNode) {
  */
 function getEventPoint(evt) {
   var p = root.createSVGPoint();
-      // Webkit, IE9
-      if (evt.offsetX !== undefined && evt.offsetY !== undefined) {
-        p.x= evt.offsetX; p.y= evt.offsetY;
-      // Firefox
-      } else if (evt.layerX !== undefined && evt.layerY !== undefined){
-        p.x= evt.layerX; p.y= evt.layerY;
-      // Older IEs
-      } else if (window.event && window.event.contentOverflow !== undefined) {
-        p.x= window.event.offsetX; p.y= window.event.offsetY;
-      }
+
+  // Webkit, IE9
+  if (evt.offsetX !== undefined && evt.offsetY !== undefined) {
+    p.x= evt.offsetX; p.y= evt.offsetY;
+  // Firefox
+  } else if (evt.layerX !== undefined && evt.layerY !== undefined){
+    p.x= evt.layerX; p.y= evt.layerY;
+  // Older IEs
+  } else if (window.event && window.event.contentOverflow !== undefined) {
+    p.x= window.event.offsetX; p.y= window.event.offsetY;
+  //Worst-case scenario, try this
+  } else {
+    p.x = evt.clientX;
+    p.y = evt.clientY;
+  }
+
+  return p;
 }
 
 /**
@@ -195,7 +210,7 @@ function handleMouseWheel(evt) {
  */
 function handleMouseMove(evt) {
   var p;
-  
+
   if(evt.preventDefault)
     evt.preventDefault();
 
