@@ -16,15 +16,26 @@ html, body {
 /* This is an enormous hack and I hate it. */
 #logo-top-margin {
   height: 10%;
+
+}
+
+.branding {
   padding: 4px;
   text-transform: uppercase;
   font-size: 16px;
   font-weight: bold;
 }
 
-#logo-top-margin svg {
+.branding.bottom {
+  position: absolute;
+  bottom: 0;
+  right: 20%;
+  text-align: left;
+}
+
+.branding svg {
  vertical-align: text-top;
- margin-right: 4px;
+ margin: 0 4px;
 }
 
 #logo {
@@ -115,11 +126,8 @@ input {
 </head>
 <body>
 <div id="sidebar"></div>
-<div id="logo-top-margin">
-  <svg height='16px' width='16px'>
-    <use xlink:href="#logo"></use>
-  </svg>
-  Mindsight Apps
+<div id="logo-top-margin" class="branding">
+<span id="svg-use-order-hack"></span>  Mindsight Apps
 </div>
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -153,7 +161,15 @@ input {
        id="figure" />
   </g>
 </svg>
+<div class="branding bottom">Mindsight Apps <svg height="16px" width="16px"><use id="favicon-use2" xlink:href="#logo"></use></svg></div>
 <script>
+//First, a hack to get around a current Webkit bug:
+//https://code.google.com/p/chromium/issues/detail?id=166438
+document.getElementById("svg-use-order-hack").innerHTML =
+  '<svg height="16px" width="16px">' +
+    '<use id="favicon-use" xlink:href="#logo"></use></svg>';
+
+//Color picking
 var parts = ["figure","iris","ground"];
 var pickers = {};
 
@@ -229,7 +245,6 @@ function updateFromHash(){
     changingLocation = false;
   } else {
     if (location.hash && location.hash.substr(1,1) == '!'){
-      updatingFromHash = true;
       for (var i=0;i<parts.length;i++){
         var color = '#' + location.hash.substr(2+i*6,6)
         if (color.match(/^#[0-9A-Fa-f]{6}$/)){
