@@ -1,98 +1,20 @@
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
   font-family: sans-serif;
-}
-
-#sidebar {
-  position: absolute;
-  background-color: gainsboro;
-  -webkit-transition: left .5s;
-  -moz-transition: left .5s;
-  -ms-transition: left .5s;
-  -o-transition: left .5s;
-  transition: left .5s;
-  left:0;
-  top: 0;
-  bottom: 0;
-}
-
-#panel {
-  margin: 80px 70px;
-  /* Show a scrollbar when more entries appear than we have height for */
-  overflow: auto;
-  /* Let the elements go into the padding if a scrollbar gets added,
-     rather than reflowing everything to accomodate the 6 fewer pixels
-     of horizontal space */
-  white-space: nowrap; 
-}
-
-#sidetoggle{
-  position: absolute;
-  right: 0;
-  top: 0;
   height: 100%;
-  border: none;
-  border-right: 4px solid lightgray;
-  background-color: silver;
-  margin:0;
-  width: 40px;
-  padding: 2px;
+  overflow: hidden;
 }
 
-#toglabel {
-  /* It's gonna be dumb and narrow */
-  white-space: nowrap;
-  text-align: center;
-  -webkit-transform: rotate(-90deg); 
-  -moz-transform: rotate(-90deg);  
-  -ms-transform: rotate(-90deg);
-  -o-transform: rotate(-90deg);
-  transform: rotate(-90deg); 
-}
-
-button {
-  border: 4px solid;
-  padding: 4px 8px;
-  font-size: 16px;
-  background-color: white;
-}
-button.active {
-  border: 8px solid;
-  padding: 0 4px;
-}
-button.mgr {
-  border-color: maroon;
-  color: maroon;}
 circle.mgr {stroke: maroon;}
-button.ffr {
-  border-color: orange;
-  color: orange;}
 circle.ffr {stroke: orange;}
-button.exile {
-  border-color: purple;
-  color: purple;}
 circle.exile {stroke: purple;}
-button.none {
-  border-color: gray;
-  color: gray;}
 circle.none {stroke: gray;}
-
-.setupline {
-  margin: 10px 0;
-}
-
-.setupline * {
- margin-top: 0;
- margin-bottom: 0;
-}
-
-.setupline input {
-  font-size: 24px;
-  border: 2px solid black;
-  padding: 1px 0;
-}
 
 #printArea {
   position: absolute;
@@ -101,6 +23,7 @@ circle.none {stroke: gray;}
   top: 0;
   bottom: 0;
 }
+
 #printout {
   background-color: darkgray;
   width: 100%;
@@ -111,16 +34,36 @@ circle {
   stroke-width: .075in;
   fill: white;
 }
+
 circle.self{
   stroke: black;
   stroke-width: .125in;
 }
 
 text {
-  text-align: center;
-  text-anchor: middle;
   font-size: 12pt;
 }
+
+text.partlabel {
+  text-align: center;
+  text-anchor: middle;
+}
+
+text.boxlabel {
+  fill:white;
+  font-size: 16pt;
+}
+
 text.self {
+  text-align: center;
+  text-anchor: middle;
   font-size:24pt;
+}
+
+input[type="number"] {
+  width: 48px;
+}
+
+input[type="image"] {
+  vertical-align: middle;
 }
