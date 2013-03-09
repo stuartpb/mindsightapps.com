@@ -106,7 +106,7 @@ function setupSVGPan(svgNode, vpNode) {
   //viewBox, much to my dismay, changes the reported getCTM for the
   //viewport, which this script uses in several places.
   //This is cheap, but it works.
-  var initialCTM = root.getCTM();
+  var initialCTM = viewport.getCTM();
   root.removeAttribute('viewBox');
   setCTM(viewport,initialCTM);
 
@@ -128,7 +128,7 @@ function getEventPoint(evt) {
   // Older IEs
   } else if (window.event && window.event.contentOverflow !== undefined) {
     p.x= window.event.offsetX; p.y= window.event.offsetY;
-  //Worst-case scenario, try this
+  // Worst-case scenario, try this
   } else {
     p.x = evt.clientX;
     p.y = evt.clientY;
@@ -141,21 +141,8 @@ function getEventPoint(evt) {
  * Sets the current transform matrix of an element.
  */
 function setCTM(element, matrix) {
-  var s = "matrix(" + matrix.a + "," + matrix.b + "," + matrix.c + ","
-    + matrix.d + "," + matrix.e + "," + matrix.f + ")";
-
-  element.setAttribute("transform", s);
-}
-
-/**
- * Dumps a matrix to a string (useful for debug).
- */
-function dumpMatrix(matrix) {
-  var s = "[ " + matrix.a + ", " + matrix.c + ", " + matrix.e
-    + "\n  " + matrix.b + ", " + matrix.d + ", " + matrix.f
-    + "\n  0, 0, 1 ]";
-
-  return s;
+  element.transform.baseVal.initialize(
+    root.createSVGTransformFromMatrix(matrix));
 }
 
 /**
@@ -164,6 +151,13 @@ function dumpMatrix(matrix) {
 function setAttributes(element, attributes){
   for (var i in attributes)
     element.setAttributeNS(null, i, attributes[i]);
+}
+
+function preventDefault(evt){
+  if(evt.preventDefault)
+    evt.preventDefault();
+
+  evt.returnValue = false;
 }
 
 /**
@@ -210,28 +204,25 @@ function handleMouseWheel(evt) {
  */
 function handleMouseMove(evt) {
   var p;
+  if(state){
+    if(state == 'pan') {
+      // Pan mode
+      p = getEventPoint(evt).matrixTransform(stateTf);
 
-  if(evt.preventDefault)
-    evt.preventDefault();
+      setCTM(viewport, stateTf.inverse()
+        .translate(p.x - stateOrigin.x, p.y - stateOrigin.y));
+    } else if(state == 'drag') {
+      // Drag mode
+      p = getEventPoint(evt).matrixTransform(viewport.getCTM().inverse());
 
-  evt.returnValue = false;
+      setCTM(stateTarget, root.createSVGMatrix()
+        .translate(p.x - stateOrigin.x, p.y - stateOrigin.y)
+        .multiply(viewport.getCTM().inverse())
+        .multiply(stateTarget.getCTM()));
 
-  if(state == 'pan' && enablePan) {
-    // Pan mode
-    p = getEventPoint(evt).matrixTransform(stateTf);
-
-    setCTM(viewport, stateTf.inverse()
-      .translate(p.x - stateOrigin.x, p.y - stateOrigin.y));
-  } else if(state == 'drag' && enableDrag) {
-    // Drag mode
-    p = getEventPoint(evt).matrixTransform(viewport.getCTM().inverse());
-
-    setCTM(stateTarget, root.createSVGMatrix()
-      .translate(p.x - stateOrigin.x, p.y - stateOrigin.y)
-      .multiply(viewport.getCTM().inverse())
-      .multiply(stateTarget.getCTM()));
-
-    stateOrigin = p;
+      stateOrigin = p;
+    }
+    preventDefault(evt);
   }
 }
 
@@ -239,44 +230,39 @@ function handleMouseMove(evt) {
  * Handle click event.
  */
 function handleMouseDown(evt) {
-  if(evt.preventDefault)
-    evt.preventDefault();
-
-  evt.returnValue = false;
-
-  stateTarget = evt.target;
-
-  while(enableDrag
-    && stateTarget.getAttribute('data-draggable') === null
-    && stateTarget.tagName != "svg") {
-    stateTarget = stateTarget.parentNode;
-  }
-  if( stateTarget.tagName == "svg"
-    || !enableDrag // Pan anyway when drag is disabled and the user clicked on an element
-  ) {
-    // Pan mode
-    state = 'pan';
-  } else {
-    // Drag mode
-    state = 'drag';
+  function stateFrom(target){
+    if(target.getAttribute("data-fixed") !== null) {
+      stateTarget = target;
+      return "pan";
+    } else if(target.getAttribute("data-draggable") !== null){
+      stateTarget = target;
+      return "drag";
+    } else if(target != root){
+      return stateFrom(target.parentNode);
+    } else {
+      return null;
+    }
   }
 
-  stateTf = viewport.getCTM().inverse();
+  state = stateFrom(evt.target);
 
-  stateOrigin = getEventPoint(evt).matrixTransform(stateTf);
+  if(state){
+    preventDefault(evt);
+
+    stateTf = viewport.getCTM().inverse();
+
+    stateOrigin = getEventPoint(evt).matrixTransform(stateTf);
+  }
 }
 
 /**
  * Handle mouse button release event.
  */
 function handleMouseUp(evt) {
-  if(evt.preventDefault)
-    evt.preventDefault();
-
-  evt.returnValue = false;
-
-  if(state == 'pan' || state == 'drag') {
+  if(state) {
     // Quit pan mode
-    state = '';
+    state = null;
+
+    preventDefault(evt);
   }
 }
