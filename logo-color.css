@@ -1,0 +1,112 @@
+html, body {
+  overflow: hidden;
+  height:100%;
+  margin: 0;
+  padding: 0;
+  font-family: Helvetica, sans-serif;
+}
+
+/* This is an enormous hack and I hate it. */
+#logo-top-margin {
+  height: 10%;
+}
+
+.branding {
+  padding: 4px;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.branding.bottom {
+  position: absolute;
+  bottom: 0;
+  right: 20%;
+  text-align: left;
+}
+
+.branding svg {
+ vertical-align: text-top;
+ margin: 0 4px;
+}
+
+#logo {
+  height: 80%;
+  width: 80%;
+  float: left;
+}
+
+#sidebar {
+  height: 100%;
+  width: 20%;
+  position:relative;
+  float:right;
+}
+
+.colorform {
+  clear:right;
+  position:relative;
+  float:right;
+  height:33.333333%;
+  width:100%;
+}
+
+.graphic {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.wrapper {
+  position: relative;
+  float: left;
+  height: 100%;
+  overflow: hidden;
+}
+
+.picker.wrapper {
+  width:95%;
+}
+
+.slider.wrapper {
+  width: 5%;
+}
+
+.indicator {
+  position: absolute
+}
+
+.picker.indicator:before {
+  content: '';
+  display: block;
+  position: absolute;
+  right:-1px;
+  bottom:-1px;
+  width: 5px;
+  height: 5px;
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+  pointer-events:none;
+}
+.picker.indicator:after {
+  content: '';
+  display: block;
+  position: absolute;
+  left:0px;
+  top:0px;
+  width: 5px;
+  height: 5px;
+  border-left: 1px solid black;
+  border-top: 1px solid black;
+  pointer-events: none;
+}
+
+.slider.indicator {
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-left: 8px solid black;
+  border-bottom: 4px solid transparent;
+  left:0;
+  pointer-events: none;
+}
