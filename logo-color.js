@@ -38,16 +38,9 @@ function changeLocation(){
     //Get the current color of that component
     var color = document.getElementById(parts[i]).getAttribute("fill");
 
-    //handle browsers that return the fill as an rgb value
-    //(Firefox)
-    var rgb = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-    if (rgb) {
-      color = hexByte(rgb[1]) + hexByte(rgb[2]) + hexByte(rgb[3]);
-    } else {
-      //if it doesn't match the RGB syntax,
-      //assume it's a hash-prefixed hex string
-      color = color.substr(1);
-    }
+    //Assuming the color is in hash-prefixed hex format,
+    //Remove the hash sign from the color
+    color = color.substr(1);
 
     //add the color to the hash
     fragment += color;
@@ -159,16 +152,8 @@ function updateFromHash(){
       for (var i=0;i<parts.length;i++){
         var color = document.getElementById(parts[i]).getAttribute("fill");
 
-        //handle browsers that return the fill as an rgb value
-        //(Firefox)
-        var rgb = color.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-        if (rgb) {
-          pickers[parts[i]].setRgb({r:rgb[1],g:rgb[2],b:rgb[3]});
-        } else {
-          //if it doesn't match the RGB syntax,
-          //assume it's a hash-prefixed hex string
-          pickers[parts[i]].setHex(color);
-        }
+        //Assume the color is in hex format
+        pickers[parts[i]].setHex(color);
       }
     }
   }
