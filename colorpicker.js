@@ -226,7 +226,8 @@
      * ColorPicker.
      * @param {DOMElement} slideElement HSV slide element.
      * @param {DOMElement} pickerElement HSV picker element.
-     * @param {Function} callback Called whenever the color is changed provided chosen color in RGB HEX format as the only argument.
+     * @param {Function} moveCallback Called whenever the color is changed. Provides the hex, HSV, and RGB colors, as well as the picker or slide mouse event (if any).
+     * @param {Function} moveCallback Called when the color is chosen (mouseup). Provides the hex, HSV, and RGB colors, as well as the picker or slide mouse event (if any).
      */
     function ColorPicker(slideElement, pickerElement, moveCallback, finalizeCallback) {
         if (!(this instanceof ColorPicker)) return new ColorPicker(slideElement, pickerElement, moveCallback, finalizeCallback);
