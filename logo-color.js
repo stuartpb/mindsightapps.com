@@ -11,47 +11,54 @@ document.getElementById("svg-use-order-hack").innerHTML =
 //What parts get colored.
 var parts = ["figure","iris","ground"];
 
-//The object that will hold the pickers once constructed.
-var pickers = {};
+//The array that will hold the pickers once constructed.
+var pickers = [];
 
-//Function to convert a decimal value to a two-character hexadecimal value.
-function hexByte(x) {
-    return ("0" + parseInt(x,10).toString(16)).slice(-2);
-}
+//The colors of the corresponding parts, stored outside of the element fill
+//for easy array manipulation.
+var colors = parts.map(function(id){
+  return document.getElementById(id).getAttribute("fill");
+});
+var defaultColors = colors.slice(0);
 
 //Semaphore that we're adjusting the location, so that we don't fall into an
 //endless loop of reacting to our own updates
 var changingLocation = false;
 
-// Update the URL to reflect the current colors of the logo
 function changeLocation(){
-
-  //Set the semaphore
+  //Set the semaphore so this change won't be read
   changingLocation = true;
 
-  //The fragment we're going to append to the URL.
-  var fragment = '#!';
-
-  //For each component of the logo, in order
-  for (var i=0;i<parts.length;i++){
-
-    //Get the current color of that component
-    var color = document.getElementById(parts[i]).getAttribute("fill");
-
-    //Assuming the color is in hash-prefixed hex format,
-    //Remove the hash sign from the color
-    color = color.substr(1);
-
-    //add the color to the hash
-    fragment += color;
-  }
-
   //Set the URL fragment (location.hash) to the one we just constructed.
-  location.hash = fragment;
+  location.hash = '#!'+colors.map(function(color){
+    //Assuming the color is in hash-prefixed hex format,
+    //remove the hash sign from the color
+    return color.substr(1);
+  }).join('');
+}
+
+function describeTitle() {
+  var ntc = window.ntc || null;
+
+  //If Name That Color is loaded
+  if(ntc){
+    //Set the window title
+    document.title = 'Mindsight Apps Logo: ' + colors.map(function(color){
+      //Map the named colors
+      return ntc.name(color)[1];
+    }).join(' on ');
+  }
+}
+
+// Update the URL + title to reflect the current colors of the logo
+function commitColors(){
+  changeLocation();
+  describeTitle();
 }
 
 // Make a color picker form.
-function makePicker(id){
+function makePicker(i){
+  var id = parts[i];
 
   //Make all the components of this color picker
   var pickerElem = document.createElement('div');
@@ -92,6 +99,9 @@ function makePicker(id){
       //Set the logo part's fill
       document.getElementById(id).setAttribute("fill",hex);
 
+      //Stash that color in the local array
+      colors[i] = hex;
+
       //Position the UI indicators
       ColorPicker.positionIndicators(sliderInd,pickerInd,mouseSlide, mousePicker,'%');
     },
@@ -100,16 +110,16 @@ function makePicker(id){
     function(hex, hsv, rgb, mousePicker, mouseSlide){
 
       //Update the URL to reflect the new color
-      changeLocation();
+      commitColors();
     });
 
   //Store this picker so it can be updated when the color is set via URL
-  pickers[id] = cp;
+  pickers[i] = cp;
 }
 
 //Make all the color pickers.
 for (var i=0;i<parts.length;i++){
-  makePicker(parts[i]);
+  makePicker(i);
 }
 
 // Set the colors of the URL.
@@ -139,23 +149,30 @@ function updateFromHash(){
         if (color.match(/^#[0-9A-Fa-f]{6}$/)){
 
           //Set the color of that part to that hexadecimal color
-          pickers[parts[i]].setHex(color);
+          pickers[i].setHex(color);
         }
       }
     //If the URL has no hash component, or it has some meaningless
-    //non-hashbang value, which has done whatever job it may have had (eg.
-    //navigating to an element on the page) where we no longer care about it
+    //non-hashbang value
     } else {
 
-      //Set the picker values from what's already on the logo
-      //(since they're not getting set from the URL)
+      //Set the logo to its initial state
       for (var i=0;i<parts.length;i++){
-        var color = document.getElementById(parts[i]).getAttribute("fill");
 
         //Assume the color is in hex format
-        pickers[parts[i]].setHex(color);
+        pickers[i].setHex(defaultColors[i]);
       }
+
+      // Adding a hashbang here is a bad idea. It means that, if you back up
+      // your history to a point where the page had no hash component,
+      // it'll functionally navigate to a "new" state, replacing *everything*
+      // forward of it in history (everything you backed up to).
+      // Better to just set the default colors (so it does work as a state
+      // that you can back up to on its own).
     }
+
+    //Either way, set the window color to describe the current colors
+    describeTitle();
   }
 }
 
