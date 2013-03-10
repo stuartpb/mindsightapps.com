@@ -30,7 +30,7 @@ html, body {
  margin: 0 4px;
 }
 
-#logo {
+.logo {
   height: 80%;
   width: 80%;
   float: left;
@@ -109,4 +109,13 @@ html, body {
   border-bottom: 4px solid transparent;
   left:0;
   pointer-events: none;
+}
+
+line {
+  stroke-width: .125;
+  stroke: black;
+}
+
+text {
+  font-size:4px;
 }

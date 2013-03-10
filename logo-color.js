@@ -1,3 +1,5 @@
+// global ntc ColorPicker
+
 "use strict";
 
 //First, a hack to get around a current Webkit bug:
@@ -38,16 +40,11 @@ function changeLocation(){
 }
 
 function describeTitle() {
-  var ntc = window.ntc || null;
-
-  //If Name That Color is loaded
-  if(ntc){
-    //Set the window title
-    document.title = 'Mindsight Apps Logo: ' + colors.map(function(color){
-      //Map the named colors
-      return ntc.name(color)[1];
-    }).join(' on ');
-  }
+  //Set the window title
+  document.title = 'Mindsight Apps Logo: ' + colors.map(function(color){
+    //Map the named colors
+    return ntc.name(color)[1];
+  }).join(' on ');
 }
 
 // Update the URL + title to reflect the current colors of the logo
@@ -90,7 +87,6 @@ function makePicker(i){
   document.getElementById('sidebar').appendChild(container);
 
   //Populate the picker elements
-  /* global ColorPicker */
   var cp = ColorPicker(sliderElem,pickerElem,
 
     //When the color of this part is changed (via UI or URL)
@@ -102,6 +98,9 @@ function makePicker(i){
       //Stash that color in the local array
       colors[i] = hex;
 
+      //Label the color
+      document.getElementById(id+'-label').textContent = ntc.name(hex)[1];
+
       //Position the UI indicators
       ColorPicker.positionIndicators(sliderInd,pickerInd,mouseSlide, mousePicker,'%');
     },
@@ -109,7 +108,7 @@ function makePicker(i){
     //When the color of this part is committed (mouseup)
     function(hex, hsv, rgb, mousePicker, mouseSlide){
 
-      //Update the URL to reflect the new color
+      //Update the URL+title to reflect the new color
       commitColors();
     });
 
