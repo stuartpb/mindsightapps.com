@@ -82,7 +82,7 @@
                               )
                          ]
                         ),
-                       $('rect', { x: '0', y: '0', width: '100%', height: '100%', fill: 'url(#gradient-white)'}),                       
+                       $('rect', { x: '0', y: '0', width: '100%', height: '100%', fill: 'url(#gradient-white)'}),
                        $('rect', { x: '0', y: '0', width: '100%', height: '100%', fill: 'url(#gradient-black)'})
                    ]
                   );
@@ -106,7 +106,7 @@
             '</v:rect>',
             '</DIV>'
         ].join('');
-        
+
         if (!document.namespaces['v'])
             document.namespaces.add('v', 'urn:schemas-microsoft-com:vml', '#default#VML');
     }
@@ -142,7 +142,7 @@
         if (r > 1 || g > 1 || b > 1) {
             r /= 255;
             g /= 255;
-            b /= 255;            
+            b /= 255;
         }
         var H, S, V, C;
         V = Math.max(r, g, b);
@@ -159,7 +159,7 @@
     /**
      * Return click event handler for the slider.
      * Sets picker background color and calls ctx.callback if provided.
-     */  
+     */
     function slideListener(ctx, slideElement, pickerElement) {
         return function(evt, callback) {
             evt = evt || window.event;
@@ -177,12 +177,12 @@
     /**
      * Return click event handler for the picker.
      * Calls ctx.callback if provided.
-     */  
+     */
     function pickerListener(ctx, pickerElement) {
         return function(evt, callback) {
             evt = evt || window.event;
             var mouse = mousePosition(evt),
-                width = pickerElement.offsetWidth,            
+                width = pickerElement.offsetWidth,
                 height = pickerElement.offsetHeight;
 
             ctx.s = mouse.x / width;
@@ -191,7 +191,7 @@
             callback && callback(c.hex, { h: ctx.h - hueOffset, s: ctx.s, v: ctx.v }, { r: c.r, g: c.g, b: c.b }, mouse);
         };
     }
-    
+
     function addDragDropListeners(element,listener,dragCallback,dropCallback){
       var held = false;
       function mouseDownListener(evt){
@@ -230,7 +230,7 @@
      */
     function ColorPicker(slideElement, pickerElement, moveCallback, finalizeCallback) {
         if (!(this instanceof ColorPicker)) return new ColorPicker(slideElement, pickerElement, moveCallback, finalizeCallback);
-        
+
         this.moveCallback = moveCallback;
         this.finalizeCallback = finalizeCallback;
         this.h = 0;
@@ -244,7 +244,7 @@
             pickerElement.appendChild(picker.cloneNode(true));
         } else {
             slideElement.innerHTML = slide;
-            pickerElement.innerHTML = picker;            
+            pickerElement.innerHTML = picker;
         }
 
         addDragDropListeners(slideElement,slideListener(this, slideElement, pickerElement),moveCallback,finalizeCallback);
@@ -286,7 +286,7 @@
     ColorPicker.prototype.setHsv = function(hsv) {
         setColor(this, hsv);
     };
-    
+
     /**
      * Sets color of the picker in rgb format.
      * @param {object} rgb Object of the form: { r: <red>, g: <green>, b: <blue> }.
@@ -323,27 +323,30 @@
                     pickerIndicator.style.right = '0px';
                     pickerIndicator.style.top = '0px';
                 }
-                slideIndicator.style.top = (mouseSlide.y - slideIndicator.offsetHeight/2) + 'px';
+                slideIndicator.style.top = (mouseSlide.y - slideIndicator.offsetHeight / 2) + 'px';
             } else if (unit == '%') {
                 if (this.resetOnHueChange) {
                     pickerIndicator.style.left = 'auto';
                     pickerIndicator.style.right = '100%';
                     pickerIndicator.style.top = '100%';
                 }
-                slideIndicator.style.top = (mouseSlide.y / slideIndicator.parentElement.offsetHeight) * 100 + '%';
+                var parentHeight = slideIndicator.parentElement.offsetHeight;
+                slideIndicator.style.top = (mouseSlide.y / parentHeight - slideIndicator.offsetHeight / parentHeight / 2) * 100 + '%';
             }
         }
         if (mousePicker) {
             if (unit == 'px') {
-                pickerIndicator.style.top = (mousePicker.y - pickerIndicator.offsetHeight/2) + 'px';
-                pickerIndicator.style.left = (mousePicker.x - pickerIndicator.offsetWidth/2) + 'px';
+                pickerIndicator.style.top = (mousePicker.y - pickerIndicator.offsetHeight / 2) + 'px';
+                pickerIndicator.style.left = (mousePicker.x - pickerIndicator.offsetWidth / 2) + 'px';
             } else if (unit == '%') {
-                pickerIndicator.style.top = (mousePicker.y / pickerIndicator.parentElement.offsetHeight) * 100 + '%';
-                pickerIndicator.style.left = (mousePicker.x / pickerIndicator.parentElement.offsetWidth) * 100 + '%';
+                var parentHeight = pickerIndicator.parentElement.offsetHeight;
+                var parentWidth = pickerIndicator.parentElement.offsetWidth;
+                pickerIndicator.style.top = (mousePicker.y / parentHeight - pickerIndicator.offsetHeight / parentHeight / 2) * 100 + '%';
+                pickerIndicator.style.left = (mousePicker.x / parentWidth - pickerIndicator.offsetWidth / parentWidth / 2) * 100 + '%';
             }
-        } 
+        }
     };
-    
+
     window.ColorPicker = ColorPicker;
 
 })(window, window.document);
