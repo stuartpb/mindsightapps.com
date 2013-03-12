@@ -23,6 +23,9 @@ html, body {
   bottom: 0;
   right: 20%;
   text-align: left;
+  background-color: black;
+  color: white;
+  padding: 6px 4px 4px 8px;
 }
 
 .branding svg {
