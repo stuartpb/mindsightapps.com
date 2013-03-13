@@ -2,16 +2,17 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
+  xmlns="http://www.w3.org/2000/svg"
   width="64px"
   height="64px"
   viewBox="0 0 64 64"
   id="logo"
   version="1.1">
-    <circle id="ground" style="fill:#d5e5ff;fill-opacity:1;stroke:none"
+    <circle id="ground" style="fill:#def;fill-opacity:1;stroke:none"
       cx="32" cy="38" r="26" />
-    <circle id="iris" style="fill:#00aad4;fill-opacity:1;stroke:none"
+    <circle id="iris" style="fill:#6cf;fill-opacity:1;stroke:none"
       cx="32" cy="40" r="16" />
-    <path id="figure" style="fill:#004455;fill-opacity:1;stroke:none" d="
+    <path id="figure" style="fill:#07a;fill-opacity:1;stroke:none" d="
       M 32,0
       A 32,32 0 1,0 32,64
       C 24.225397,64 16.478548,58.355081 12,52 8.0836237,46.442643

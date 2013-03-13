@@ -52,6 +52,9 @@ html, body {
   float:right;
   height:33.333333%;
   width:100%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 
 .graphic {
