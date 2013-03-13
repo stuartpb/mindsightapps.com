@@ -149,6 +149,12 @@ function updateFromHash(){
 
           //Set the color of that part to that hexadecimal color
           pickers[i].setHex(color);
+
+        //If this part of the hashbang is invalid
+        } else {
+
+          //Set the default color (so the URL always sets the same colors)
+          pickers[i].setHex(defaultColors[i]);
         }
       }
     //If the URL has no hash component, or it has some meaningless
@@ -157,18 +163,17 @@ function updateFromHash(){
 
       //Set the logo to its initial state
       for (var i=0;i<parts.length;i++){
-
-        //Assume the color is in hex format
+        //(we assume the colors are in hex format)
         pickers[i].setHex(defaultColors[i]);
       }
-
-      // Adding a hashbang here is a bad idea. It means that, if you back up
-      // your history to a point where the page had no hash component,
-      // it'll functionally navigate to a "new" state, replacing *everything*
-      // forward of it in history (everything you backed up to).
-      // Better to just set the default colors (so it does work as a state
-      // that you can back up to on its own).
     }
+
+    // Adding a hashbang here is a bad idea. It means that, if you back up
+    // your history to a point where the page had no hash component,
+    // it'll functionally navigate to a "new" state, replacing *everything*
+    // forward of it in history (everything you backed up to).
+    // Better to just set the default colors (so it does work as a state
+    // that you can back up to on its own).
 
     //Either way, set the window color to describe the current colors
     describeTitle();
