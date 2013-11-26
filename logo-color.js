@@ -61,7 +61,7 @@ var updateFavicon; (function setupFavicon() {
   
   // The canvas element we render our SVG image element to.
   var faviconCanvas = document.createElement('canvas');
-    faviconCanvas.width = 16; faviconCanvas.height = 16;
+    faviconCanvas.width = 64; faviconCanvas.height = 64;
     
   // The drawing context for the canvas element.
   var fcCtx = faviconCanvas.getContext('2d');
@@ -76,10 +76,10 @@ var updateFavicon; (function setupFavicon() {
       'data:image/svg+xml;base64,' + btoa(logoOuterdiv.innerHTML);
       
     // Clear the canvas.
-    fcCtx.clearRect(0, 0, 16, 16);
+    fcCtx.clearRect(0, 0, 64, 64);
     
     // Copy the image element onto the canvas.
-    fcCtx.drawImage(faviconImg, 0, 0, 16, 16);
+    fcCtx.drawImage(faviconImg, 0, 0, 64, 64);
     
     // Copy the canvas to the favicon link.
     favicon.href = faviconCanvas.toDataURL();
