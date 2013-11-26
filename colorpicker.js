@@ -171,6 +171,7 @@
             var c = hsv2rgb(ctx.h, ctx.s, ctx.v);
             pickerElement.style.backgroundColor = hsv2rgb(ctx.h,1,1).hex;
             callback && callback(c.hex, { h: ctx.h - hueOffset, s: ctx.s, v: ctx.v }, { r: c.r, g: c.g, b: c.b }, undefined, mouse);
+            return false;
         };
     }
 
@@ -189,6 +190,7 @@
             ctx.v = (height - mouse.y) / height;
             var c = hsv2rgb(ctx.h, ctx.s, ctx.v);
             callback && callback(c.hex, { h: ctx.h - hueOffset, s: ctx.s, v: ctx.v }, { r: c.r, g: c.g, b: c.b }, mouse);
+            return false;
         };
     }
 

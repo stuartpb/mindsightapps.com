@@ -47,10 +47,28 @@ function describeTitle() {
   }).join(' on ');
 }
 
+
+var logoWrap = document.getElementById("logo-wrap");
+var favicon = document.getElementById("favicon");
+var canvas = document.createElement("canvas");
+  canvas.width = 16; canvas.height = 16;
+var ctx = canvas.getContext('2d');
+var svgimg = new Image();
+
+function updateFavicon() {
+  //assumes canvg has added drawSvg to canvas
+  ctx.clearRect(0,0,16,16);
+  //ctx.drawSvg(logo.innerHTML,0,0,16,16);
+  svgimg.src = 'data:image/svg+xml;base64,' + btoa(
+    '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n' + logoWrap.innerHTML);
+  ctx.drawImage(svgimg,0,0,16,16);
+  favicon.href = canvas.toDataURL();
+}
 // Update the URL + title to reflect the current colors of the logo
 function commitColors(){
   changeLocation();
   describeTitle();
+  updateFavicon();
 }
 
 // Make a color picker form.
@@ -176,7 +194,7 @@ function updateFromHash(){
     // that you can back up to on its own).
 
     //Either way, set the window color to describe the current colors
-    describeTitle();
+    describeTitle(); updateFavicon();
   }
 }
 
