@@ -48,7 +48,7 @@ function describeTitle() {
 }
 
 
-var logoWrap = document.getElementById("logo-wrap");
+var logoOuterdiv = document.getElementById("logo-outerdiv");
 var favicon = document.getElementById("favicon");
 var canvas = document.createElement("canvas");
   canvas.width = 16; canvas.height = 16;
@@ -59,8 +59,7 @@ function updateFavicon() {
   //assumes canvg has added drawSvg to canvas
   ctx.clearRect(0,0,16,16);
   //ctx.drawSvg(logo.innerHTML,0,0,16,16);
-  svgimg.src = 'data:image/svg+xml;base64,' + btoa(
-    '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n' + logoWrap.innerHTML);
+  svgimg.src = 'data:image/svg+xml;base64,' + btoa(logoOuterdiv.innerHTML);
   ctx.drawImage(svgimg,0,0,16,16);
   favicon.href = canvas.toDataURL();
 }
