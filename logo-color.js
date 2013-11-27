@@ -72,8 +72,7 @@ var updateFavicon; (function setupFavicon() {
   updateFavicon = function updateFavicon() {
     
     // Copy the SVG into the image element as a Base64 DataURL.
-    faviconImg.src =
-      'data:image/svg+xml;base64,' + btoa(logoOuterdiv.innerHTML);
+    faviconImg.src = 'data:image/svg+xml,' + logoOuterdiv.innerHTML;
       
     // Clear the canvas.
     fcCtx.clearRect(0, 0, 64, 64);
